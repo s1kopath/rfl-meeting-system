@@ -337,6 +337,7 @@ const createForm = useForm({
 
 const applyFilters = () => {
     // This would trigger a new request with filters
+    alert("Under development");
     console.log("Applying filters:", filters.value);
 };
 
@@ -350,17 +351,20 @@ const clearFilters = () => {
 
 const loadPage = (page) => {
     // This would load a specific page
+    alert("Under development");
     console.log("Loading page:", page);
 };
 
 const editUser = (user) => {
     // This would open edit modal or navigate to edit page
+    alert("Under development");
     console.log("Editing user:", user.id);
 };
 
 const deleteUser = (user) => {
     if (confirm("Are you sure you want to delete this user?")) {
         // This would delete the user
+        alert("Under development");
         console.log("Deleting user:", user.id);
         toast.success("User deleted successfully!");
     }

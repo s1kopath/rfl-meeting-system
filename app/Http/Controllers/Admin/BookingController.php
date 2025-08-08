@@ -60,14 +60,6 @@ class BookingController extends Controller
     {
         $booking->load(['user', 'meetingRoom']);
 
-        // Debug: Log the booking data
-        Log::info('Booking details:', [
-            'booking_id' => $booking->id,
-            'booking_data' => $booking->toArray(),
-            'user' => $booking->user ? $booking->user->toArray() : null,
-            'meeting_room' => $booking->meetingRoom ? $booking->meetingRoom->toArray() : null,
-        ]);
-
         return Inertia::render('Admin/Bookings/Show', [
             'booking' => $booking
         ]);

@@ -351,9 +351,6 @@ const props = defineProps({
     booking: Object,
 });
 
-// Debug: Log the booking data
-console.log("Booking data received:", props.booking);
-
 const showRejectModal = ref(false);
 
 const rejectForm = useForm({

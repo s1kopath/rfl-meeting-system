@@ -400,6 +400,7 @@ const filters = ref({
 
 const applyFilters = () => {
     // This would trigger a new request with filters
+    alert("Under development");
     console.log("Applying filters:", filters.value);
 };
 
@@ -415,6 +416,7 @@ const clearFilters = () => {
 
 const loadPage = (page) => {
     // This would load a specific page
+    alert("Under development");
     console.log("Loading page:", page);
 };
 

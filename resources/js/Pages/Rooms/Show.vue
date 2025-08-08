@@ -169,7 +169,7 @@
                         </h3>
                         <div class="space-y-3">
                             <div class="flex items-center justify-between">
-                                <span class="text-gray-600">Status:</span>
+                                <span class="text-gray-600">Availability:</span>
                                 <span
                                     :class="[
                                         'px-2 py-1 text-xs font-medium rounded-full',
@@ -178,14 +178,12 @@
                                             : 'bg-red-100 text-red-800',
                                     ]"
                                 >
-                                    {{ room.is_active ? "Active" : "Inactive" }}
+                                    {{
+                                        room.is_active
+                                            ? "Available"
+                                            : "Unavailable"
+                                    }}
                                 </span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-gray-600">Availability:</span>
-                                <span class="text-green-600 font-medium"
-                                    >Available</span
-                                >
                             </div>
                         </div>
                     </div>

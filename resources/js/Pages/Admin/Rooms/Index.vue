@@ -654,10 +654,6 @@ const clearCreateImage = () => {
 };
 
 const createRoom = () => {
-    // Debug: Log the form data
-    console.log("Form data:", createForm.data());
-    console.log("Image file:", createForm.image);
-
     createForm.post("/admin/rooms", {
         onSuccess: () => {
             showCreateModal.value = false;
@@ -666,7 +662,6 @@ const createRoom = () => {
             toast.success("Meeting room created successfully!");
         },
         onError: (errors) => {
-            console.log("Form errors:", errors);
             toast.showValidationErrors(errors);
         },
     });

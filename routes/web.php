@@ -84,6 +84,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/test-toasts', function () {
         return Inertia::render('TestToasts');
     })->name('test.toasts');
+
+    Route::get('/test-bookings', function (Request $request) {
+        $date = $request->get('date', '2025-08-08');
+        $bookings = \App\Models\Booking::whereDate('date', $date)
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->with(['meetingRoom'])
+            ->get()
+            ->groupBy('meeting_room_id');
+
+        return response()->json([
+            'date' => $date,
+            'bookings' => $bookings,
+            'total' => $bookings->flatten()->count()
+        ]);
+    })->name('test.bookings');
 });
 
 require __DIR__ . '/auth.php';

@@ -47,17 +47,29 @@ class BookingController extends Controller
     public function create(Request $request)
     {
         $rooms = MeetingRoom::active()->get();
-        
+
+        // Get existing bookings for the selected date if provided
+        $existingBookings = collect();
+        if ($request->has('date') && $request->date) {
+            // Convert the date to the proper format for database query
+            $queryDate = date('Y-m-d', strtotime($request->date));
+
+            $existingBookings = Booking::whereDate('date', $queryDate)
+                ->whereIn('status', ['confirmed', 'pending'])
+                ->with(['meetingRoom'])
+                ->get()
+                ->groupBy('meeting_room_id');
+        }
+
         return Inertia::render('Bookings/Create', [
-            'rooms' => $rooms
+            'rooms' => $rooms,
+            'existingBookings' => $existingBookings,
+            'selectedDate' => $request->date
         ]);
     }
 
     public function store(Request $request)
     {
-        // Debug: Log the request data
-        Log::info('Booking creation request:', $request->all());
-        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -68,14 +80,28 @@ class BookingController extends Controller
             'meeting_room_id' => 'required|exists:meeting_rooms,id'
         ]);
 
-        \Log::info('Validated booking data:', $validated);
+        // Check if the room is available for the selected time
+        $conflictingBookings = Booking::where('meeting_room_id', $validated['meeting_room_id'])
+            ->whereDate('date', $validated['date'])
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->where(function ($query) use ($validated) {
+                $query->where(function ($q) use ($validated) {
+                    $q->where('start_time', '<', $validated['end_time'])
+                        ->where('end_time', '>', $validated['start_time']);
+                });
+            })
+            ->exists();
+
+        if ($conflictingBookings) {
+            return back()->withErrors([
+                'time_conflict' => 'The selected room is not available for the chosen time slot. Please select a different time or room.'
+            ]);
+        }
 
         $booking = Auth::user()->bookings()->create([
             ...$validated,
             'status' => 'pending'
         ]);
-
-        \Log::info('Booking created:', ['booking_id' => $booking->id]);
 
         return redirect()->route('bookings.index')
             ->with('success', 'Booking created successfully. Waiting for approval.');

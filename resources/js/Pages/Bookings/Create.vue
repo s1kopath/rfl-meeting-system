@@ -111,12 +111,51 @@
                                 :key="room.id"
                                 @click="selectRoom(room)"
                                 :class="[
-                                    'border-2 rounded-lg p-4 cursor-pointer transition-colors duration-200',
+                                    'border-2 rounded-lg p-4 transition-colors duration-200',
                                     selectedRoom?.id === room.id
                                         ? 'border-blue-500 bg-blue-50'
-                                        : 'border-gray-200 hover:border-gray-300',
+                                        : form.date &&
+                                          form.start_time &&
+                                          form.end_time &&
+                                          !isRoomAvailable(room)
+                                        ? 'border-red-300 bg-red-50 cursor-not-allowed opacity-60'
+                                        : 'border-gray-200 hover:border-gray-300 cursor-pointer',
                                 ]"
                             >
+                                <!-- Room Image -->
+                                <div
+                                    v-if="room.image_url"
+                                    class="h-48 overflow-hidden"
+                                >
+                                    <img
+                                        :src="room.image_url"
+                                        :alt="room.name"
+                                        class="w-full h-full object-cover rounded-lg"
+                                    />
+                                </div>
+                                <div
+                                    v-else
+                                    class="h-48 bg-gray-200 flex items-center justify-center"
+                                >
+                                    <div class="text-center">
+                                        <svg
+                                            class="w-16 h-16 text-gray-400 mx-auto mb-2"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                                            ></path>
+                                        </svg>
+                                        <p class="text-sm text-gray-500">
+                                            No image available
+                                        </p>
+                                    </div>
+                                </div>
                                 <div
                                     class="flex items-center justify-between mb-2"
                                 >
@@ -144,42 +183,85 @@
 
                                 <!-- Availability Status -->
                                 <div class="mt-3">
-                                    <!-- <span
-                                        :class="[
-                                            'px-2 py-1 text-xs font-medium rounded-full',
-                                            room.is_active
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-red-100 text-red-800',
-                                        ]"
-                                    >
-                                        {{
-                                            room.is_active
-                                                ? "Available"
-                                                : "Unavailable"
-                                        }}
-                                    </span> -->
-                                    <div
-                                        v-if="
-                                            form.date &&
-                                            form.start_time &&
-                                            form.end_time
-                                        "
-                                        class="mt-1"
-                                    >
-                                        <span
+                                    <div v-if="form.date" class="space-y-2">
+                                        <!-- Room Status -->
+                                        <!-- <span
                                             :class="[
                                                 'px-2 py-1 text-xs font-medium rounded-full',
-                                                isRoomAvailable(room)
+                                                room.is_active
                                                     ? 'bg-green-100 text-green-800'
                                                     : 'bg-red-100 text-red-800',
                                             ]"
                                         >
                                             {{
-                                                isRoomAvailable(room)
-                                                    ? "Available for selected time"
-                                                    : "Not available for selected time"
+                                                room.is_active
+                                                    ? "Active"
+                                                    : "Inactive"
                                             }}
-                                        </span>
+                                        </span> -->
+
+                                        <!-- Time Availability -->
+                                        <div
+                                            v-if="
+                                                form.start_time && form.end_time
+                                            "
+                                        >
+                                            <span
+                                                :class="[
+                                                    'px-2 py-1 text-xs font-medium rounded-full',
+                                                    isRoomAvailable(room)
+                                                        ? 'bg-green-100 text-green-800'
+                                                        : 'bg-red-100 text-red-800',
+                                                ]"
+                                            >
+                                                {{
+                                                    isRoomAvailable(room)
+                                                        ? "Available for selected time"
+                                                        : "Not available for selected time"
+                                                }}
+                                            </span>
+                                        </div>
+
+                                        <!-- Existing Bookings -->
+                                        <div
+                                            v-if="
+                                                getRoomBookings(room).length > 0
+                                            "
+                                            class="mt-2"
+                                        >
+                                            <p
+                                                class="text-xs text-gray-600 font-medium mb-1"
+                                            >
+                                                Existing bookings for
+                                                {{ form.date }}:
+                                            </p>
+                                            <div class="space-y-1">
+                                                <div
+                                                    v-for="booking in getRoomBookings(
+                                                        room
+                                                    )"
+                                                    :key="booking.id"
+                                                    class="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded"
+                                                >
+                                                    {{
+                                                        formatTime(
+                                                            booking.start_time
+                                                        )
+                                                    }}
+                                                    -
+                                                    {{
+                                                        formatTime(
+                                                            booking.end_time
+                                                        )
+                                                    }}
+                                                    <span
+                                                        class="ml-1 text-gray-400"
+                                                    >
+                                                        ({{ booking.title }})
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -209,13 +291,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useForm, Link, Head, router } from "@inertiajs/vue3";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import toast from "@/utils/toast";
 
 const props = defineProps({
     rooms: Array,
+    existingBookings: {
+        type: Object,
+        default: () => ({}),
+    },
+    selectedDate: String,
     errors: {
         type: Object,
         default: () => ({}),
@@ -243,24 +330,64 @@ const availableRooms = computed(() => {
 });
 
 const selectRoom = (room) => {
+    // Don't allow selection if room is not available for the selected time
+    if (
+        form.date &&
+        form.start_time &&
+        form.end_time &&
+        !isRoomAvailable(room)
+    ) {
+        toast.error("This room is not available for the selected time slot.");
+        return;
+    }
+
     selectedRoom.value = room;
     form.meeting_room_id = room.id;
 };
 
 const isRoomAvailable = (room) => {
+
     if (!form.date || !form.start_time || !form.end_time) {
         return room.is_active;
     }
 
-    // Simple availability check - in a real app, you'd check against existing bookings
-    return room.is_active;
+    // Check if room is active
+    if (!room.is_active) {
+        return false;
+    }
+
+    // Get existing bookings for this room on the selected date
+    const roomBookings = props.existingBookings[room.id] || [];
+
+    // Check for time conflicts
+    for (const booking of roomBookings) {
+        const bookingStart = booking.start_time;
+        const bookingEnd = booking.end_time;
+        const selectedStart = form.start_time;
+        const selectedEnd = form.end_time;
+
+        // Check if there's any overlap
+        if (selectedStart < bookingEnd && selectedEnd > bookingStart) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
+const getRoomBookings = (room) => {
+    return props.existingBookings[room.id] || [];
+};
+
+const formatTime = (time) => {
+    return new Date(`2000-01-01T${time}`).toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+    });
 };
 
 const submit = () => {
-    // Debug: Log the form data
-    console.log("Form data:", form.data());
-    console.log("Selected room:", selectedRoom.value);
-
     // Validate that a room is selected
     if (!selectedRoom.value) {
         toast.error("Please select a meeting room.");
@@ -275,16 +402,37 @@ const submit = () => {
             router.visit("/bookings");
         },
         onError: (errors) => {
-            console.log("Form errors:", errors);
             toast.showValidationErrors(errors);
         },
     });
 };
 
+// Watch for date changes to reload booking data
+watch(
+    () => form.date,
+    (newDate) => {
+        if (newDate) {
+            router.get(
+                "/bookings/create",
+                { date: newDate },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                }
+            );
+        }
+    }
+);
+
 // Show validation errors on mount if any
 onMounted(() => {
     if (Object.keys(props.errors).length > 0) {
         toast.showValidationErrors(props.errors);
+    }
+
+    // Set initial date if provided
+    if (props.selectedDate) {
+        form.date = props.selectedDate;
     }
 });
 </script>

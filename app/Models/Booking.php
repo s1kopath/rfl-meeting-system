@@ -85,8 +85,8 @@ class Booking extends Model
 
     public function getFormattedTimeAttribute()
     {
-        $start = Carbon::parse($this->start_time)->format('H:i');
-        $end = Carbon::parse($this->end_time)->format('H:i');
+        $start = Carbon::parse($this->start_time)->format('h:i A');
+        $end = Carbon::parse($this->end_time)->format('h:i A');
         return "{$start} - {$end}";
     }
 

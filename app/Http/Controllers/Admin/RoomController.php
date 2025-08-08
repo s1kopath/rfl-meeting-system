@@ -34,10 +34,6 @@ class RoomController extends Controller
 
     public function store(Request $request)
     {
-        // Debug: Log the request data
-        Log::info('Room creation request:', $request->all());
-        Log::info('Has image file:', ['has_file' => $request->hasFile('image')]);
-
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -55,13 +51,10 @@ class RoomController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        Log::info('Validated data:', $validated);
-
         $room = MeetingRoom::create($validated);
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            Log::info('Uploading image for room:', ['room_id' => $room->id]);
             $room->uploadImage($request->file('image'));
         }
 
