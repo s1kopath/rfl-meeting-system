@@ -13,9 +13,6 @@
                             Welcome back, {{ $page.props.auth.user?.name }}!
                         </p>
                     </div>
-                    <button @click="testToast" class="modern-btn-primary">
-                        Test Toast
-                    </button>
                 </div>
             </div>
 
@@ -260,8 +257,4 @@ const props = defineProps({
     recentBookings: Array,
     availableRooms: Array,
 });
-
-const testToast = () => {
-    toast.success("This is a test toast notification! 🎉");
-};
 </script>

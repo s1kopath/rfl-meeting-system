@@ -146,7 +146,7 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">
                             Quick Actions
                         </h3>
-                        <div class="space-y-3">
+                        <div class="space-y-3 space-x-2">
                             <Link
                                 :href="`/bookings/create?room=${room.id}`"
                                 class="w-full btn-primary text-center"

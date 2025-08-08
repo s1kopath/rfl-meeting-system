@@ -34,6 +34,8 @@ class Booking extends Model
         'is_rescheduled' => 'boolean',
     ];
 
+    protected $appends = ['formatted_time'];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

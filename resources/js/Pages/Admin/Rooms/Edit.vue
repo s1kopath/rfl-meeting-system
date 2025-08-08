@@ -360,7 +360,7 @@ const clearImage = () => {
 };
 
 const updateRoom = () => {
-    form.put(`/admin/rooms/${props.room.id}`, {
+    form.post(`/admin/rooms/${props.room.id}`, {
         onSuccess: () => {
             toast.success("Meeting room updated successfully!");
         },

@@ -13,28 +13,16 @@
                             Efficient meeting room booking and management
                         </p>
                     </div>
-                    <div class="flex space-x-4">
+                    <div class="flex space-x-4" v-if="auth.user">
                         <!-- Show panel button if user is logged in -->
-                        <Link
-                            v-if="auth.user"
-                            :href="getPanelUrl()"
-                            class="btn-primary"
-                        >
+                        <Link :href="getPanelUrl()" class="btn-primary">
                             Go to Panel
                         </Link>
                         <!-- Show login/register if user is not logged in -->
-                        <Link
-                            v-else-if="canLogin"
-                            href="/login"
-                            class="btn-primary"
-                        >
-                            Log in
-                        </Link>
-                        <Link
-                            v-if="!auth.user && canRegister"
-                            href="/register"
-                            class="btn-secondary"
-                        >
+                    </div>
+                    <div class="flex space-x-4" v-else>
+                        <Link href="/login" class="btn-primary"> Log in </Link>
+                        <Link href="/register" class="btn-secondary">
                             Register
                         </Link>
                     </div>

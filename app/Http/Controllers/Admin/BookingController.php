@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Models\MeetingRoom;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class BookingController extends Controller
@@ -57,8 +58,18 @@ class BookingController extends Controller
 
     public function show(Booking $booking)
     {
+        $booking->load(['user', 'meetingRoom']);
+
+        // Debug: Log the booking data
+        Log::info('Booking details:', [
+            'booking_id' => $booking->id,
+            'booking_data' => $booking->toArray(),
+            'user' => $booking->user ? $booking->user->toArray() : null,
+            'meeting_room' => $booking->meetingRoom ? $booking->meetingRoom->toArray() : null,
+        ]);
+
         return Inertia::render('Admin/Bookings/Show', [
-            'booking' => $booking->load(['user', 'meetingRoom'])
+            'booking' => $booking
         ]);
     }
 

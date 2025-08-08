@@ -258,8 +258,8 @@
                                 :class="[
                                     'text-sm flex-1',
                                     room.is_active
-                                        ? 'btn-danger'
-                                        : 'btn-primary',
+                                        ? 'btn-warning'
+                                        : 'btn-info',
                                 ]"
                             >
                                 {{ room.is_active ? "Deactivate" : "Activate" }}

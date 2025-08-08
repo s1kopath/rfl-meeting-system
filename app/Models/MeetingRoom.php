@@ -39,6 +39,8 @@ class MeetingRoom extends Model
         'has_wifi' => 'boolean',
     ];
 
+    protected $appends = ['image_url', 'image_thumbnail_url'];
+
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
@@ -57,7 +59,7 @@ class MeetingRoom extends Model
             ->where(function ($q) use ($startTime, $endTime) {
                 $q->where(function ($q) use ($startTime, $endTime) {
                     $q->where('start_time', '<', $endTime)
-                      ->where('end_time', '>', $startTime);
+                        ->where('end_time', '>', $startTime);
                 });
             });
 
@@ -71,7 +73,7 @@ class MeetingRoom extends Model
     public function getAmenitiesListAttribute()
     {
         $amenities = [];
-        
+
         if ($this->seats > 0) {
             $amenities[] = "{$this->seats} seats";
         }
@@ -134,7 +136,7 @@ class MeetingRoom extends Model
 
         $path = $file->store('meeting-rooms', 'public');
         $this->update(['image' => $path]);
-        
+
         return $path;
     }
 
@@ -145,4 +147,4 @@ class MeetingRoom extends Model
             $this->update(['image' => null]);
         }
     }
-} 
+}
